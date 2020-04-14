@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 
 class MapFound extends Component {
 	constructor(props) {
@@ -6,7 +6,7 @@ class MapFound extends Component {
 		this.state = {};
 	}
 	render() {
-		return <div>MapFound</div>;
+		return <Fragment>MapFound</Fragment>;
 	}
 }
 

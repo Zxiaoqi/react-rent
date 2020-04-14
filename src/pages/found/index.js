@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 
 class Found extends Component {
 	constructor(props) {
@@ -6,7 +6,7 @@ class Found extends Component {
 		this.state = {};
 	}
 	render() {
-		return <div>Found</div>;
+		return <Fragment>Found</Fragment>;
 	}
 }
 

@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component,Fragment } from "react";
 
 class CitySelect extends Component {
 	constructor(props) {
@@ -6,7 +6,7 @@ class CitySelect extends Component {
 		this.state = {};
 	}
 	render() {
-		return <div>CitySelect</div>;
+		return <Fragment>CitySelect</Fragment>;
 	}
 }
 

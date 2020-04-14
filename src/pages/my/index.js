@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from "react";
 
 class My extends Component {
     constructor(props) {
@@ -7,9 +7,9 @@ class My extends Component {
     }
     render() { 
         return ( 
-            <div>
+            <Fragment>
                 my
-            </div>
+            </Fragment>
         );
     }
 }

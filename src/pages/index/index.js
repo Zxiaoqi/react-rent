@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 
 class Tabbar extends Component {
 	constructor(props) {
@@ -6,7 +6,7 @@ class Tabbar extends Component {
 		this.state = {};
 	}
 	render() {
-		return <div>Tabbar</div>;
+		return <Fragment>Tabbar</Fragment>;
 	}
 }
 

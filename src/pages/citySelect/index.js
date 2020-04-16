@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import "../../styles/components/citysearch.scss"
-import {  Button } from "antd-mobile";
 
 class CitySelect extends Component {
 	state = {

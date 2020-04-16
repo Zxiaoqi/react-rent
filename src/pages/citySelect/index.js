@@ -1,16 +1,17 @@
 import React, { Component } from "react";
-import "../../styles/components/citysearch.scss"
+import "./citysearch.scss"
 
 class CitySelect extends Component {
 	state = {
-		value: "美食",
+		value: "",
 	};
 	render() {
 		return (
 			<div className="citysearch">
 				<div className="search">
 					<div className="search-drop">
-						<button className="search-drop-btn">下拉</button>
+						<button className="search-drop-btn">{this.props.cityName}</button>
+						<i className="iconfont icon-bottom"></i>
 					</div>
 					<div className="search-box">
 						<i className="iconfont icon-susong-search"></i>

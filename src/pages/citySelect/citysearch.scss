@@ -13,10 +13,19 @@
         margin:0 .6rem;
         border-radius: 3px;
         &-drop{
+            display: flex;
+            align-items: center;
+            color: #000;
             &-btn{
                 outline:0;
                 background-color: transparent;
                 border: 0;
+            }
+            .icon-bottom:before{
+                display: flex;
+                font-size: 13px;
+                align-items: center;
+                padding-left: 3px;
             }
         }
         &-box{

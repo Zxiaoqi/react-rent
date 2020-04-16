@@ -33,12 +33,22 @@ class Tabbar extends Component {
 			},
 		],
 		groupslist: [],
-		newslist:[]
+		newslist: [],
+		cityName:""
 	};
 	componentDidMount() {
 		this.getSwiper();
 		this.getGroups();
 		this.getNews();
+		
+		var myCity = new window.BMap.LocalCity();
+		myCity.get((result) => {
+			// console.log(result);
+			this.setState({
+				cityName:result.name
+			});
+		});
+		
 	}
 	getSwiper() {
 		axios.get("/home/swiper").then((res) => {
@@ -59,7 +69,7 @@ class Tabbar extends Component {
 	}
 	getNews() {
 		axios.get("/home/news").then((res) => {
-			console.table(res.data.body);
+			// console.table(res.data.body);
 			this.setState({
 				newslist: res.data.body,
 			});
@@ -71,7 +81,7 @@ class Tabbar extends Component {
 			<Fragment>
 				<div className="swiper-box">
 					{swiperlist.length && (
-						<Carousel autoplay infinite dots={false}>
+						<Carousel autoplay infinite>
 							{swiperlist.map((val) => (
 								<a
 									key={val.id}
@@ -95,7 +105,7 @@ class Tabbar extends Component {
 							))}
 						</Carousel>
 					)}
-					<CitySelect className="citysearch"></CitySelect>
+					<CitySelect className="citysearch" cityName={this.state.cityName}></CitySelect>
 				</div>
 				<div className="navs">
 					{navs.map((item) => (

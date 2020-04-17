@@ -1,0 +1,9 @@
+.navbar{
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    &-icon{
+        margin-right: -10px;
+        line-height: 0;
+    }
+}

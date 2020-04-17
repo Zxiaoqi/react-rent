@@ -2,6 +2,8 @@ import React, { Component,Fragment} from "react";
 import { Carousel } from "antd-mobile";
 import "../../styles/pages/index.scss"
 import CitySelect from '../citySelect/index'
+import { connect } from "react-redux";
+import { actionLocaCity } from "../../store/actionCreator";
 import axios from "axios";
 
 axios.defaults.baseURL = "http://157.122.54.189:9060";
@@ -40,15 +42,7 @@ class Tabbar extends Component {
 		this.getSwiper();
 		this.getGroups();
 		this.getNews();
-		
-		var myCity = new window.BMap.LocalCity();
-		myCity.get((result) => {
-			// console.log(result);
-			this.setState({
-				cityName:result.name
-			});
-		});
-		
+		this.props.actionLocaCity();
 	}
 	getSwiper() {
 		axios.get("/home/swiper").then((res) => {
@@ -105,7 +99,11 @@ class Tabbar extends Component {
 							))}
 						</Carousel>
 					)}
-					<CitySelect className="citysearch" cityName={this.state.cityName}></CitySelect>
+					<CitySelect
+						className="citysearch"
+						cityName={this.props.cityName}
+						iconColor="#fff"
+					></CitySelect>
 				</div>
 				<div className="navs">
 					{navs.map((item) => (
@@ -159,4 +157,15 @@ class Tabbar extends Component {
 	}
 }
 
-export default Tabbar;
+const mapStateToProps = (state) => ({
+	cityName: state.mapReducer.cityName,
+});
+const mapActionToProps = (dispatch) => {
+	return {
+		actionLocaCity() {
+			dispatch(actionLocaCity());
+		},
+	};
+};
+
+export default connect(mapStateToProps, mapActionToProps)(Tabbar);

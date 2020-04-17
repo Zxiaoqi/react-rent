@@ -2,9 +2,6 @@ import React, { Component } from "react";
 import "./citysearch.scss"
 
 class CitySelect extends Component {
-	state = {
-		value: "",
-	};
 	render() {
 		return (
 			<div className="citysearch">
@@ -21,7 +18,8 @@ class CitySelect extends Component {
 						></input>
 					</div>
 				</div>
-				<i className="iconfont icon-ditu1"></i>
+				<i className="iconfont icon-ditu1"
+				style={{ "color": this.props.iconColor }}></i>
 			</div>
 		);
 	}

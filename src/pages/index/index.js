@@ -1,9 +1,8 @@
 import React, { Component,Fragment} from "react";
 import { Carousel } from "antd-mobile";
 import "../../styles/pages/index.scss"
-import CitySelect from '../citySelect/index'
-import { connect } from "react-redux";
-import { actionLocaCity } from "../../store/actionCreator";
+import CitySelect from '../../components/citySearch/index'
+
 import axios from "axios";
 
 axios.defaults.baseURL = "http://157.122.54.189:9060";
@@ -35,14 +34,12 @@ class Tabbar extends Component {
 			},
 		],
 		groupslist: [],
-		newslist: [],
-		cityName:""
+		newslist: []
 	};
 	componentDidMount() {
 		this.getSwiper();
 		this.getGroups();
 		this.getNews();
-		this.props.actionLocaCity();
 	}
 	getSwiper() {
 		axios.get("/home/swiper").then((res) => {
@@ -101,7 +98,6 @@ class Tabbar extends Component {
 					)}
 					<CitySelect
 						className="citysearch"
-						cityName={this.props.cityName}
 						iconColor="#fff"
 					></CitySelect>
 				</div>
@@ -157,15 +153,5 @@ class Tabbar extends Component {
 	}
 }
 
-const mapStateToProps = (state) => ({
-	cityName: state.mapReducer.cityName,
-});
-const mapActionToProps = (dispatch) => {
-	return {
-		actionLocaCity() {
-			dispatch(actionLocaCity());
-		},
-	};
-};
 
-export default connect(mapStateToProps, mapActionToProps)(Tabbar);
+export default Tabbar;

@@ -1,6 +1,6 @@
 import { INITCITY } from "../actionType/index";
 const defaultState = {
-	cityName: "xxx",
+	cityName: "",
 };
 
 const mapReducer = (state = defaultState, action) => {

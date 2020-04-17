@@ -9,7 +9,7 @@ class CitySelect extends Component {
 		const { history } = this.props;
 		return (
 			<div className="citysearch">
-				<div className="search" onClick={() => history.push("/")}>
+				<div className="search" onClick={() => history.push("/cityselect")}>
 					<div className="search-drop">
 						<button className="search-drop-btn">{this.props.cityName}</button>
 						<i className="iconfont icon-bottom"></i>
@@ -31,6 +31,7 @@ class CitySelect extends Component {
 		);
 	}
 }
+//映射全局属性
 const mapStateToProps = (state) => ({
 	cityName: state.mapReducer.cityName,
 });

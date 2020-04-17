@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Icon, Picker } from "antd-mobile";
-import CityName from "../citySelect/index";
+import CityName from "../../components/citySearch/index";
 import "./found.scss"
 import axios from "axios";
 

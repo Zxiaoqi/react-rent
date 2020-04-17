@@ -1,11 +1,8 @@
 import React, { Component,Fragment} from "react";
 import { Carousel } from "antd-mobile";
-import "../../styles/pages/index.scss"
-import CitySelect from '../../components/citySearch/index'
-
-import axios from "axios";
-
-axios.defaults.baseURL = "http://157.122.54.189:9060";
+import "styles/pages/index.scss"
+import CitySelect from 'components/citySearch/index'
+import { request,baseURL } from "utils/request";
 
 class Tabbar extends Component {
 	state = {
@@ -42,7 +39,7 @@ class Tabbar extends Component {
 		this.getNews();
 	}
 	getSwiper() {
-		axios.get("/home/swiper").then((res) => {
+		request.get("/home/swiper").then((res) => {
 			// console.log(res);
 			const swiperlist = res.data.body;
 			this.setState({
@@ -51,7 +48,7 @@ class Tabbar extends Component {
 		});
 	}
 	getGroups() {
-		axios.get("/home/groups").then((res) => {
+		request.get("/home/groups").then((res) => {
 			// console.table(res.data.body);
 			this.setState({
 				groupslist: res.data.body,
@@ -59,7 +56,7 @@ class Tabbar extends Component {
 		});
 	}
 	getNews() {
-		axios.get("/home/news").then((res) => {
+		request.get("/home/news").then((res) => {
 			// console.table(res.data.body);
 			this.setState({
 				newslist: res.data.body,
@@ -83,7 +80,7 @@ class Tabbar extends Component {
 									}}
 								>
 									<img
-										src={axios.defaults.baseURL + val.imgSrc}
+										src={baseURL + val.imgSrc}
 										alt=""
 										style={{ width: "100%", verticalAlign: "top" }}
 										onLoad={() => {
@@ -123,7 +120,7 @@ class Tabbar extends Component {
 								</div>
 								<img
 									className="groups-item-right"
-									src={axios.defaults.baseURL + item.imgSrc}
+									src={baseURL + item.imgSrc}
 								></img>
 							</div>
 						))}
@@ -135,7 +132,7 @@ class Tabbar extends Component {
 						{newslist.map((v) => (
 							<div key={v.id} className="news_item">
 								<div className="news_item_img">
-									<img src={axios.defaults.baseURL + v.imgSrc} alt="" />
+									<img src={baseURL + v.imgSrc} alt="" />
 								</div>
 								<div className="news_item_info">
 									<div className="news_item_title">{v.title}</div>

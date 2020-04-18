@@ -13,9 +13,11 @@ class CitySelect extends Component {
 			letterList: [],
 			currentIndex: 0,
 		};
+		this.listRef = React.createRef();
 	}
 	componentDidMount() {
 		this.getAreaHot();
+		// console.log(this.props);
 	}
 	async getAreaHot() {
 		let letterList = ["#", "热"];
@@ -55,7 +57,9 @@ class CitySelect extends Component {
 		cityList.push(...cityArr);
 		this.setState({ cityList, letterList });
 		// console.log(letterList);
+		this.listRef.measureAllRows();
 	}
+	//列表结构
 	rowRenderer = ({ key, index, isScrolling, isVisible, style }) => {
 		const cityitem = this.state.cityList[index];
 		return (
@@ -70,14 +74,27 @@ class CitySelect extends Component {
 			</div>
 		);
 	};
+	//大行高
 	rowHeight = ({ index }) => {
 		return this.state.cityList[index].children.length * 50 + 40;
 	};
+	//activeIndex
 	handleActiveIndex(currentIndex) {
 		this.setState({
-			currentIndex
+			currentIndex,
 		});
+	}
+	//滚动activeIndex
+	RowsRendered = ({ startIndex }) => {
+		if (this.state.currentIndex !== startIndex) {
+			this.setState({
+				currentIndex: startIndex,
+			});
+		}
 	};
+	toBack() { 
+		this.props.history.goBack()
+	}
 	render() {
 		const { cityList, letterList, currentIndex } = this.state;
 		return (
@@ -85,12 +102,13 @@ class CitySelect extends Component {
 				<NavBar
 					mode="light"
 					icon={<Icon type="left" />}
-					onLeftClick={() => console.log("onLeftClick")}
+					onLeftClick={() => this.toBack()}
 				>
 					城市选择
 				</NavBar>
 				<div className="citylist">
 					<List
+						ref={(ref) => (this.listRef = ref)}
 						width={window.screen.width}
 						height={window.screen.height - 45}
 						rowCount={cityList.length}
@@ -98,6 +116,7 @@ class CitySelect extends Component {
 						rowRenderer={this.rowRenderer}
 						scrollToIndex={currentIndex}
 						scrollToAlignment={"start"}
+						onRowsRendered={this.RowsRendered}
 					/>
 					<div className="letter">
 						{letterList.map((v, i) => (

@@ -33,11 +33,11 @@ class Found extends Component {
 		return cityId; 
 	}
 	async getAreaCity(id) { 
+		let areaCity = [];
 		const condition = (
 			await request.get(`/houses/condition?id=${id}`)
 		).data.body;
 		const { area,subway} = condition
-		let areaCity = []
 		areaCity.push(area, subway);
 		// console.log(areaCity);
 		this.setState({

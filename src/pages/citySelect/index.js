@@ -1,75 +1,87 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import { NavBar, Icon } from "antd-mobile";
 import { connect } from 'react-redux'
-import { request, baseURL } from 'utils/request'
+import { request } from 'utils/request'
 import "./index.scss"
+import { List } from "react-virtualized";
 
 class CitySelect extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { cityList: [] };
+		this.state = {
+			cityList: [],
+			letterList: [],
+			currentIndex: 0,
+		};
 	}
 	componentDidMount() {
 		this.getAreaHot();
 	}
-	getAreaHot() {
-		let cityList = JSON.parse(JSON.stringify(this.state.cityList));
+	async getAreaHot() {
+		let letterList = ["#", "热"];
+		const cityList = JSON.parse(JSON.stringify(this.state.cityList));
 		cityList.push({
 			title: "当前定位",
-			children: [
-				{
-					label: this.props.cityName,
-				},
-			],
+			children: [{ label: this.props.cityName }],
 		});
-		let city1 = request.get("/area/hot").then((res) => {
-			// console.log(res.data.body);
-			const hotData = res.data.body;
-			cityList = cityList.concat(
-				[{
-					title: "热门城市",
-					children: hotData,
-				}]
-			);
-		});
-		let city2 = request.get("/area/city?level=1").then((res) => {
-			// console.log(res.data.body);
-			const cityData = res.data.body;
-			//设定遍历参考
-			let letters = "ABCDEFGHJKLMNOPQRSTWXYZ".split("");
-			let zh = "abcdefghjklmnopqrstwxyz".split("");
-			
-			let cityArr = [], cityitem = {};
-			//遍历
-			letters.map((item, n) => {
-				cityitem = {
-					title: item,
-					children:[]
-				}
-				cityData.map((v, i) => { 
-					if (!zh[n] || new RegExp("^" + zh[n]).test(v.short)) {
-						cityitem.children.push(v);
-					}
-				})
-				if (cityitem.children.length>0) { 
-					cityArr.push(cityitem)
+
+		const hotData = (await request.get("/area/hot")).data.body;
+		// console.log(hotData);
+		cityList.push({ title: "热门城市", children: hotData });
+
+		const cityData = (await request.get("/area/city?level=1")).data.body;
+		// console.log(cityData);
+		//设定遍历参考
+		const zh = "abcdefghjklmnopqrstwxyz".split("");
+		let cityArr = [],
+			cityitem = {};
+		//遍历
+		zh.map((item, n) => {
+			cityitem = {
+				title: item.toLocaleUpperCase(),
+				children: [],
+			};
+			cityData.map((v, i) => {
+				if (!zh[n] || new RegExp("^" + zh[n]).test(v.short)) {
+					cityitem.children.push(v);
 				}
 			});
-			// console.log(cityArr);
-			cityList = cityList.concat(cityArr);
-			
+			if (cityitem.children.length > 0) {
+				cityArr.push(cityitem);
+				letterList.push(cityitem.title);
+			}
 		});
-		Promise.all([city1, city2]).then(res => { 
-			// console.log(res);
-			this.setState({
-				cityList,
-			});
-		})
+		// console.log(cityArr);
+		cityList.push(...cityArr);
+		this.setState({ cityList, letterList });
+		// console.log(letterList);
 	}
-	render() {
-		const { cityList} = this.state
+	rowRenderer = ({ key, index, isScrolling, isVisible, style }) => {
+		const cityitem = this.state.cityList[index];
 		return (
-			<Fragment>
+			<div key={key} style={style} className="city">
+				<div className="title">{cityitem.title}</div>
+				{cityitem.children.length &&
+					cityitem.children.map((v) => (
+						<div className="name" key={v.label}>
+							{v.label}
+						</div>
+					))}
+			</div>
+		);
+	};
+	rowHeight = ({ index }) => {
+		return this.state.cityList[index].children.length * 50 + 40;
+	};
+	handleActiveIndex(currentIndex) {
+		this.setState({
+			currentIndex
+		});
+	};
+	render() {
+		const { cityList, letterList, currentIndex } = this.state;
+		return (
+			<div className="cityselect">
 				<NavBar
 					mode="light"
 					icon={<Icon type="left" />}
@@ -78,15 +90,31 @@ class CitySelect extends Component {
 					城市选择
 				</NavBar>
 				<div className="citylist">
-					{cityList.map((v,i) => (
-						<div className="city" key={i}>
-							<div className="title">{v.title}</div>
-							{v.children.length &&
-								v.children.map((city) => <div className="name" key={city.label}>{city.label}</div>)}
-						</div>
-					))}
+					<List
+						width={window.screen.width}
+						height={window.screen.height - 45}
+						rowCount={cityList.length}
+						rowHeight={this.rowHeight}
+						rowRenderer={this.rowRenderer}
+						scrollToIndex={currentIndex}
+						scrollToAlignment={"start"}
+					/>
+					<div className="letter">
+						{letterList.map((v, i) => (
+							<div
+								className={[
+									"letter-view",
+									currentIndex === i ? "activeIndex" : "",
+								].join(" ")}
+								key={v}
+								onClick={() => this.handleActiveIndex(i)}
+							>
+								<span>{v}</span>
+							</div>
+						))}
+					</div>
 				</div>
-			</Fragment>
+			</div>
 		);
 	}
 }

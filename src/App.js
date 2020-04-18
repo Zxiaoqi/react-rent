@@ -10,7 +10,6 @@ import CitySelect from "pages/citySelect/index";
 import MapFound from "pages/mapFound/index";
 import { connect } from "react-redux";
 import { actionLocaCity } from "store/actionCreator";
-
 class App extends React.Component {
 	componentDidMount() {
 		this.props.actionLocaCity();

@@ -1,32 +1,87 @@
-import React, { Component} from "react";
-import { List } from "react-virtualized";
+import React from "react";
+import { Popover, Icon } from "antd-mobile";
 
-// List data as an array of strings
-const list = Object.keys(String(new Array(101)))
+const Item = Popover.Item;
 
-function rowRenderer({key, index, isScrolling, isVisible, style}) {
-	return (
-		<div key={key} style={style}>
-			{list[index]}
-		</div>
-	);
+const myImg = (src) => (
+	<img
+		src={`https://gw.alipayobjects.com/zos/rmsportal/${src}.svg`}
+		className="am-icon am-icon-xs"
+		alt=""
+	/>
+);
+class Demo extends React.Component {
+	state = {
+		visible: true,
+		selected: "",
+	};
+	onSelect = (opt) => {
+		// console.log(opt.props.value);
+		this.setState({
+			visible: false,
+			selected: opt.props.value,
+		});
+	};
+	handleVisibleChange = (visible) => {
+		this.setState({
+			visible,
+		});
+	};
+	render() {
+		return (
+			<div>
+				<Popover
+					mask
+					overlayClassName="fortest"
+					overlayStyle={{ color: "currentColor" }}
+					visible={this.state.visible}
+					placement={"bottomLeft"}
+					overlay={[
+						<Item
+							key="4"
+							value="scan"
+							icon={myImg("tOtXhkIWzwotgGSeptou")}
+							data-seed="logId"
+						>
+							Scan
+						</Item>,
+						<Item
+							key="5"
+							value="special"
+							icon={myImg("PKAgAqZWJVNwKsAJSmXd")}
+							style={{ whiteSpace: "nowrap" }}
+						>
+							My Qrcode
+						</Item>,
+						<Item
+							key="6"
+							value="button ct"
+							icon={myImg("uQIYTFeRrjPELImDRrPt")}
+						>
+							<span style={{ marginRight: 5 }}>Help</span>
+						</Item>,
+					]}
+					align={{
+						overflow: { adjustY: 0, adjustX: 0 },
+						offset: [-10, 0],
+					}}
+					onVisibleChange={this.handleVisibleChange}
+					onSelect={this.onSelect}
+				>
+					<div
+						style={{
+							height: "100%",
+							padding: "0 15px",
+							marginRight: "-15px",
+							display: "flex",
+							alignItems: "center",
+						}}
+					>
+						<Icon type="ellipsis" />
+					</div>
+				</Popover>
+			</div>
+		);
+	}
 }
-
-class Demolist extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {  }
-    }
-    render() { 
-        return (
-        <List
-		width={300}
-		height={300}
-		rowCount={list.length}
-		rowHeight={20}
-		rowRenderer={rowRenderer}
-	/> );
-    }
-}
- 
-export default Demolist;
+export default Demo;

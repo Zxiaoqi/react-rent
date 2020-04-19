@@ -1,52 +1,134 @@
 import React, { Component } from "react";
-import { Icon, Picker } from "antd-mobile";
+import { Icon, PickerView } from "antd-mobile";
 import CityName from "components/citySearch/index";
 import "./found.scss"
 import { request } from "utils/request";
 import { connect } from "react-redux";
-
-import { createForm } from "rc-form";
-// import arrayTreeFilter from "array-tree-filter";
-import { district, provinceLite } from "antd-mobile-demo-data";
-
 
 
 class Found extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			areaCity: []
+			areaCity: [],
+			rentType: [],
+			price: [],
+			areaTitle: ["区域", "房型", "价格", "筛选"],
+			value: null,
+			activeIndex: null,
 		};
 	}
 	componentDidMount() {
-		this.getCityId().then(res => { 
+		this.getCityId().then((res) => {
 			// console.log(res);
 			this.getAreaCity(res);
-		})
-		
+		});
+
 		// console.log(this.props);
-		// console.log(district);
 	}
-	async getCityId() { 
-		const cityId = (await request.get(`/area/info?name=${this.props.cityName}`)).data.body.value
+	async getCityId() {
+		const cityId = (await request.get(`/area/info?name=${this.props.cityName}`))
+			.data.body.value;
 		// console.log(cityId);
-		return cityId; 
+		return cityId;
 	}
-	async getAreaCity(id) { 
+	async getAreaCity(id) {
 		let areaCity = [];
-		const condition = (
-			await request.get(`/houses/condition?id=${id}`)
-		).data.body;
-		const { area,subway} = condition
+		const condition = (await request.get(`/houses/condition?id=${id}`)).data
+			.body;
+		console.log(condition);
+		const {
+			area, //区域
+			subway, //地铁
+			characteristic, //房屋亮点
+			floor, //楼层
+			rentType, //方式
+			oriented, //朝向
+			price, //价格
+			roomType, //户型
+		} = condition;
 		areaCity.push(area, subway);
+
 		// console.log(areaCity);
 		this.setState({
-			areaCity
+			areaCity,
+			rentType,
+			price,
 		});
 	}
+	onChange = (value) => {
+		console.log(value);
+		this.setState({
+			value,
+		});
+	};
+	onScrollChange = (value) => {
+		console.log(value);
+	};
+	changeActive(activeIndex){ 
+		this.setState({
+			activeIndex
+		})
+		this.renderActivePicker()
+	}
+	//picker结构
+	renderActivePicker() {
+		const { areaCity, rentType, price, activeIndex } = this.state;
+		if (activeIndex === 0) {
+			return (
+				<div className="filter-box">
+					<PickerView
+						onChange={this.onChange}
+						onScrollChange={this.onScrollChange}
+						value={this.state.value}
+						data={areaCity}
+					/>
+					<div className="picker-select">
+						<div className="cancel">取消</div>
+						<div className="deter">确定</div>
+					</div>
+				</div>
+			);
+		} else if (activeIndex === 1) {
+			return (
+				<div className="filter-box">
+					<PickerView
+						onChange={this.onChange}
+						onScrollChange={this.onScrollChange}
+						value={this.state.value}
+						data={rentType}
+						cascade={false}
+					/>
+					<div className="picker-select">
+						<div className="cancel">取消</div>
+						<div className="deter">确定</div>
+					</div>
+				</div>
+			);
+		} else if (activeIndex === 2) {
+			return (
+				<div className="filter-box">
+					<PickerView
+						onChange={this.onChange}
+						onScrollChange={this.onScrollChange}
+						value={this.state.value}
+						data={price}
+						cascade={false}
+					/>
+					<div className="picker-select">
+						<div className="cancel">取消</div>
+						<div className="deter">确定</div>
+					</div>
+				</div>
+			);
+		} else if (activeIndex === 3) {
+			return <div>aasds</div>;
+		} else {
+			return null;
+		}
+	}
 	render() {
-		const { getFieldProps } = this.props.form;
-		const { areaCity } = this.state;
+		const { areaTitle, activeIndex } = this.state;
 		return (
 			<div className="founds">
 				<div className="navbar">
@@ -56,21 +138,22 @@ class Found extends Component {
 					<CityName iconColor="#00e064" />
 				</div>
 				<div className="area-filters">
-					{areaCity.length && (
-						<Picker
-							title="area"
-							extra="请选择(可选)"
-							data={areaCity}
-							{...getFieldProps("areaCity")}
-							onChange={(v) => console.log(v)}
-							onOk={(v) => console.log(v)}
-						>
-							<div className="area-name">
-								<span>区域</span>
-								<i></i>
+					<div className="filter-picker">
+						{areaTitle.map((v, i) => (
+							<div
+								className={[
+									"filter-name",
+									activeIndex === i ? "activeName" : "",
+								].join(" ")}
+								key={v}
+								onClick={() => this.changeActive(i)}
+							>
+								<span>{v}</span>
+								<i className="iconfont icon-bottom"></i>
 							</div>
-						</Picker>
-					)}
+						))}
+					</div>
+					{this.renderActivePicker()}
 				</div>
 			</div>
 		);
@@ -81,4 +164,4 @@ const mapStateToProps = (state) => ({
 	cityName: state.mapReducer.cityName,
 });
 
-export default connect(mapStateToProps)(createForm()(Found));
+export default connect(mapStateToProps)(Found);

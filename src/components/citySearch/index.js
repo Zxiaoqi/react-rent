@@ -33,7 +33,7 @@ class CitySelect extends Component {
 }
 //映射全局属性
 const mapStateToProps = (state) => ({
-	cityName: state.mapReducer.cityName,
+	cityName: state.mapReducer.cityName.name,
 });
 
 export default connect(mapStateToProps)(withRouter(CitySelect));

@@ -1,3 +1,3 @@
 
 export const INITCITY = "INITCITY";
-export const ADD_NUM_P = "ADD_NUM_P";
+export const CITY_UPDATE = "CITY_UPDATE";

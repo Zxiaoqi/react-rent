@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { request } from 'utils/request'
 import "./index.scss"
 import { List } from "react-virtualized";
+import { actionUpdateCity } from "store/actionCreator";
 
 class CitySelect extends Component {
 	constructor(props) {
@@ -26,12 +27,15 @@ class CitySelect extends Component {
 			title: "当前定位",
 			children: [{ label: this.props.cityName }],
 		});
-
-		const hotData = (await request.get("/area/hot")).data.body;
+		const res = await Promise.all([
+			request.get("/area/hot"),
+			request.get("/area/city?level=1"),
+		]);
+		const hotData = res[0].data.body;
 		// console.log(hotData);
 		cityList.push({ title: "热门城市", children: hotData });
 
-		const cityData = (await request.get("/area/city?level=1")).data.body;
+		const cityData = res[1].data.body;
 		// console.log(cityData);
 		//设定遍历参考
 		const zh = "abcdefghjklmnopqrstwxyz".split("");
@@ -67,22 +71,33 @@ class CitySelect extends Component {
 				<div className="title">{cityitem.title}</div>
 				{cityitem.children.length &&
 					cityitem.children.map((v) => (
-						<div className="name" key={v.label}>
+						<div
+							className="name"
+							key={v.label}
+							onClick={() => this.handleCityName(v.label)}
+						>
 							{v.label}
 						</div>
 					))}
 			</div>
 		);
 	};
+	//city点击事件
+	handleCityName(cityName) {
+		// console.log(cityName);
+		this.props.actionUpdateCity(cityName);
+		this.props.history.goBack()
+	 }
 	//大行高
 	rowHeight = ({ index }) => {
 		return this.state.cityList[index].children.length * 50 + 40;
 	};
 	//activeIndex
 	handleActiveIndex(currentIndex) {
-		this.setState({
-			currentIndex,
-		});
+		// this.setState({
+		// 	currentIndex,
+		// });
+		this.listRef.scrollToRow(currentIndex);
 	}
 	//滚动activeIndex
 	RowsRendered = ({ startIndex }) => {
@@ -92,8 +107,8 @@ class CitySelect extends Component {
 			});
 		}
 	};
-	toBack() { 
-		this.props.history.goBack()
+	toBack() {
+		this.props.history.goBack();
 	}
 	render() {
 		const { cityList, letterList, currentIndex } = this.state;
@@ -114,7 +129,7 @@ class CitySelect extends Component {
 						rowCount={cityList.length}
 						rowHeight={this.rowHeight}
 						rowRenderer={this.rowRenderer}
-						scrollToIndex={currentIndex}
+						// scrollToIndex={currentIndex}
 						scrollToAlignment={"start"}
 						onRowsRendered={this.RowsRendered}
 					/>
@@ -138,7 +153,16 @@ class CitySelect extends Component {
 	}
 }
 const mapStateToProps = (state) => ({
-	cityName: state.mapReducer.cityName,
+	cityName: state.mapReducer.cityName.name,
 });
 
-export default connect(mapStateToProps)(CitySelect);
+const mapActionToProps = (dispatch) => { 
+	return {
+		actionUpdateCity(cityName) { 
+			dispatch(actionUpdateCity(cityName));
+		}
+	};
+}
+
+
+export default connect(mapStateToProps, mapActionToProps)(CitySelect);

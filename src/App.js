@@ -34,7 +34,7 @@ class App extends React.Component {
 }
 
 const mapStateToProps = (state) => ({
-	cityName: state.mapReducer.cityName,
+	cityName: state.mapReducer.cityName.name,
 });
 //全局调用地图api
 const mapActionToProps = (dispatch) => {

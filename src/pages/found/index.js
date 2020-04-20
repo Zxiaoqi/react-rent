@@ -23,7 +23,6 @@ class Found extends Component {
 			// console.log(res);
 			this.getAreaCity(res);
 		});
-
 		// console.log(this.props);
 	}
 	async getCityId() {
@@ -65,11 +64,11 @@ class Found extends Component {
 	onScrollChange = (value) => {
 		console.log(value);
 	};
-	changeActive(activeIndex){ 
+	changeActive(activeIndex) {
 		this.setState({
-			activeIndex
-		})
-		this.renderActivePicker()
+			activeIndex,
+		});
+		this.renderActivePicker();
 	}
 	//picker结构
 	renderActivePicker() {
@@ -127,12 +126,16 @@ class Found extends Component {
 			return null;
 		}
 	}
+	toBack() { 
+		this.props.history.goBack();
+	}
 	render() {
 		const { areaTitle, activeIndex } = this.state;
 		return (
 			<div className="founds">
 				<div className="navbar">
-					<div className="navbar-icon">
+					<div className="navbar-icon"
+					onClick={() => this.toBack()}>
 						<Icon type="left" />
 					</div>
 					<CityName iconColor="#00e064" />

@@ -22,14 +22,17 @@ class MapFound extends Component {
 		map.addControl(new BMap.ScaleControl());
 		map.addControl(new BMap.NavigationControl());
 
-		const infoName = (await request.get("/area/info?name=广州")).data.body.value
-		// console.log(infoName);
-		const houseData = (await request.get("area/map?id=" + infoName)).data.body
-		console.log(houseData);
-
-		houseData.forEach(v => { 
+		const cityValue = (await request.get("/area/info?name=广州")).data.body.value
+		// console.log(cityValue);
+		const houseData = (await request.get("area/map?id=" + cityValue)).data.body
+		// console.log(houseData);
+		this.showOpts(houseData,map)
+	}
+	showOpts(data,map) { 
+		const BMap = window.BMap;
+		data.forEach(v => { 
 			const point = new BMap.Point(v.coord.longitude, v.coord.latitude);
-			map.centerAndZoom(point, 11);
+			map.centerAndZoom(point, map.getZoom());
 			const opts = {
 				position: point, // 指定文本标注所在的地理位置
 				offset: new BMap.Size(), //设置文本偏移量
@@ -39,12 +42,6 @@ class MapFound extends Component {
 				<p>${v.label}</p>
 				<p>${v.count +"套"}</p>
 				</div>`, opts); // 创建文本标注对象
-			// label.setContent(
-			// 	'<div className="map-opts>'+
-			// 	'<span>'+v.label+'</span>'+
-			// 	'<span>'+v.count + '套</span>'+
-			// 	'</div>'
-			// );
 			
 			label.setStyle({
 				border: "1px solid #eee",
@@ -53,9 +50,19 @@ class MapFound extends Component {
 				fontSize: "12px",
 				fontFamily: "微软雅黑",
 			});
+			label.onclick = () => { 
+				map.zoomTo(map.getZoom() + 2); 
+				request.get("area/map?id=" + v.value).then(res => { 
+					const houseData = res.data.body
+					// console.log(houseData);
+					
+					if (houseData.length > 0) { 
+						this.showOpts(houseData, map);
+					}
+				})
+			}
 			map.addOverlay(label);   
 		})
-		
 	}
 	toBack() { 
 		this.props.history.goBack()

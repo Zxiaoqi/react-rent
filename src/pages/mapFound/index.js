@@ -2,40 +2,47 @@ import React, { Component, Fragment } from "react";
 import { NavBar, Icon } from "antd-mobile";
 import Css from "./mapFound.module.scss"
 import {connect } from 'react-redux'
-import { request } from "utils/request";
+import { request, baseURL } from "utils/request";
 
 const BMap = window.BMap;
 let map = null;
 class MapFound extends Component {
-	getMapInfo=(function() { 
+	constructor() { 
+		super();
+		this.state = {
+			showDetail: false,
+			houseList: []
+		};
+	}
+	getMapInfo = (function () {
 		let mapInfos = [
-				{ times: 1, cls: "circle", zoom: 11 },
-				{ times: 2, cls: "circle", zoom: 13 },
-				{ times: 3, cls: "rect", zoom: 15 },
-			];
+			{ times: 1, cls: "circle", zoom: 11 },
+			{ times: 2, cls: "circle", zoom: 13 },
+			{ times: 3, cls: "rect", zoom: 15 },
+		];
 		let index = -1;
-		return function () { 
-			return mapInfos[++index] 
-		}
-	})()
-	componentDidMount() {
+		return function () {
+			return mapInfos[++index];
+		};
+	})();
+	async componentDidMount() {
 		this.mapFound();
 	}
 	async mapFound() {
 		const cityName = this.props.cityMsg.name;
 		map = new BMap.Map("allmap");
+		map.addEventListener("dragstart", () => {
+			this.setState({ showDetail: 0 });
+		});
 		//添加控件和比例尺
 		map.addControl(new BMap.ScaleControl());
 		map.addControl(new BMap.NavigationControl());
-
-		const id = (await request.get("/area/info?name=广州" )).data.body
-			.value;
-		
+		const id = (await request.get("/area/info?name=广州")).data.body.value;
 		this.showOpts(id, cityName);
 	}
 	async showOpts(id, address) {
 		const mapInfo = this.getMapInfo();
-		
+
 		map.centerAndZoom(address, mapInfo.zoom);
 
 		const houseData = (await request.get("area/map?id=" + id)).data.body;
@@ -55,29 +62,42 @@ class MapFound extends Component {
 
 			label.setStyle({
 				border: "none",
-				backgroundColor: "transparent"
+				backgroundColor: "transparent",
 			});
 
 			label.onclick = () => {
+				// console.log(v.value);
+				const newId = v.value;
+				const newPoint = point;
 				if (mapInfo.times === 3) {
-					console.log("aaa");
+					this.getHouse(newId);
 				} else {
 					// map.zoomTo(map.getZoom() + 2);
 					setTimeout(() => {
 						map.clearOverlays();
 					}, 0);
-					const newId = v.value;
-					const newPoint = point;
+					
 					this.showOpts(newId, newPoint);
 				}
 			};
 			map.addOverlay(label);
 		});
 	}
+	getHouse(id) { 
+		request.get("/houses?cityId=" + id).then(res => { 
+			const { list } = res.data.body
+			this.setState({
+				houseList: list,
+				showDetail:370
+			});
+		})
+	}
 	toBack() {
 		this.props.history.goBack();
 	}
 	render() {
+		const { showDetail, houseList } = this.state;
+
 		return (
 			<Fragment>
 				<NavBar
@@ -89,6 +109,37 @@ class MapFound extends Component {
 				</NavBar>
 				<div className={Css.map_allmap}>
 					<div id="allmap" className={Css.allmap}></div>
+						<div
+							className={Css.house_list}
+							style={{ height: showDetail + "px" }}
+						>
+							<div className={Css.house_title}>
+								<h3>房屋列表</h3>
+								<span>更多房源</span>
+							</div>
+							<div className={Css.list_content}>
+								{houseList.map((v) => (
+									<div key={v.houseCode} className={Css.item_content}>
+										<div className={Css.list_img}>
+											<img src={baseURL + v.houseImg} />
+										</div>
+										<div className={Css.item_house}>
+											<div className={Css.house_name}>{v.title}</div>
+											<div className={Css.house_desc}>{v.desc}</div>
+											{v.tags.map((tag) => (
+												<span key={tag} className={Css.tags}>
+													{tag}
+												</span>
+											))}
+											<div className={Css.price}>
+												<span>{v.price}</span>
+												元/月
+											</div>
+										</div>
+									</div>
+								))}
+							</div>
+						</div>
 				</div>
 			</Fragment>
 		);

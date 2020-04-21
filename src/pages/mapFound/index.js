@@ -1,71 +1,81 @@
 import React, { Component, Fragment } from "react";
 import { NavBar, Icon } from "antd-mobile";
-import "./mapFound.scss"
+import Css from "./mapFound.module.scss"
 import {connect } from 'react-redux'
 import { request } from "utils/request";
 
+const BMap = window.BMap;
+let map = null;
 class MapFound extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {};
-	}
+	getMapInfo=(function() { 
+		let mapInfos = [
+				{ times: 1, cls: "circle", zoom: 11 },
+				{ times: 2, cls: "circle", zoom: 13 },
+				{ times: 3, cls: "rect", zoom: 15 },
+			];
+		let index = -1;
+		return function () { 
+			return mapInfos[++index] 
+		}
+	})()
 	componentDidMount() {
 		this.mapFound();
 	}
 	async mapFound() {
-		const BMap = window.BMap;
-		const { lng,lat} =this.props.cityCenter
-		// 百度地图API功能
-		let map = new BMap.Map("allmap");
-		map.centerAndZoom(new BMap.Point(lng, lat), 11);
+		const cityName = this.props.cityMsg.name;
+		map = new BMap.Map("allmap");
 		//添加控件和比例尺
 		map.addControl(new BMap.ScaleControl());
 		map.addControl(new BMap.NavigationControl());
 
-		const cityValue = (await request.get("/area/info?name=广州")).data.body.value
-		// console.log(cityValue);
-		const houseData = (await request.get("area/map?id=" + cityValue)).data.body
-		// console.log(houseData);
-		this.showOpts(houseData,map)
+		const id = (await request.get("/area/info?name=广州" )).data.body
+			.value;
+		
+		this.showOpts(id, cityName);
 	}
-	showOpts(data,map) { 
-		const BMap = window.BMap;
-		data.forEach(v => { 
+	async showOpts(id, address) {
+		const mapInfo = this.getMapInfo();
+		
+		map.centerAndZoom(address, mapInfo.zoom);
+
+		const houseData = (await request.get("area/map?id=" + id)).data.body;
+		houseData.forEach((v) => {
 			const point = new BMap.Point(v.coord.longitude, v.coord.latitude);
-			map.centerAndZoom(point, map.getZoom());
 			const opts = {
 				position: point, // 指定文本标注所在的地理位置
-				offset: new BMap.Size(), //设置文本偏移量
+				offset: new BMap.Size(0, 0), //设置文本偏移量
 			};
 			const label = new BMap.Label(
-				`<div class='map-opts'>
+				`<div class=${Css[mapInfo.cls]}>
 				<p>${v.label}</p>
-				<p>${v.count +"套"}</p>
-				</div>`, opts); // 创建文本标注对象
-			
+				<p>${v.count + "套"}</p>
+				</div>`,
+				opts
+			); // 创建文本标注对象
+
 			label.setStyle({
-				border: "1px solid #eee",
-				borderRadius: "50%",
-				backgroundColor: "#00e064",
-				fontSize: "12px",
-				fontFamily: "微软雅黑",
+				border: "none",
+				backgroundColor: "transparent"
 			});
-			label.onclick = () => { 
-				map.zoomTo(map.getZoom() + 2); 
-				request.get("area/map?id=" + v.value).then(res => { 
-					const houseData = res.data.body
-					// console.log(houseData);
-					
-					if (houseData.length > 0) { 
-						this.showOpts(houseData, map);
-					}
-				})
-			}
-			map.addOverlay(label);   
-		})
+
+			label.onclick = () => {
+				if (mapInfo.times === 3) {
+					console.log("aaa");
+				} else {
+					// map.zoomTo(map.getZoom() + 2);
+					setTimeout(() => {
+						map.clearOverlays();
+					}, 0);
+					const newId = v.value;
+					const newPoint = point;
+					this.showOpts(newId, newPoint);
+				}
+			};
+			map.addOverlay(label);
+		});
 	}
-	toBack() { 
-		this.props.history.goBack()
+	toBack() {
+		this.props.history.goBack();
 	}
 	render() {
 		return (
@@ -77,8 +87,8 @@ class MapFound extends Component {
 				>
 					城市地图
 				</NavBar>
-				<div className="map_allmap">
-					<div id="allmap"></div>
+				<div className={Css.map_allmap}>
+					<div id="allmap" className={Css.allmap}></div>
 				</div>
 			</Fragment>
 		);
@@ -87,7 +97,7 @@ class MapFound extends Component {
 const mapStateToProps = (state) => { 
 	// console.log(state);
 	return {
-		cityCenter:state.mapReducer.cityName.center
+		cityMsg:state.mapReducer.cityName
 	}
 }
 

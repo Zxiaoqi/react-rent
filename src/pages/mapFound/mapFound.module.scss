@@ -1,0 +1,27 @@
+.map_allmap {
+    .allmap{
+        height: calc(100vh - 45px);
+        .circle {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-color: #00e064;
+            color: #fff;
+            border: 2px solid hsla(0, 0%, 100%, .8);
+            cursor: pointer;
+        }
+        .rect {
+            padding: 3px;
+            display: flex;
+            align-items: center;
+            color: #fff;
+            background-color: #00e064;
+            border: 2px solid hsla(0, 0%, 100%, .8);
+            cursor: pointer;
+        }
+    }
+}

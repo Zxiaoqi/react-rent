@@ -4,7 +4,9 @@ import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 
 class CitySelect extends Component {
-	
+	static defaultProps = {
+		iconColor:"#fff"
+	}
 	render() {
 		const { history } = this.props;
 		return (

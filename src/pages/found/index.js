@@ -2,11 +2,10 @@ import React, { Component } from "react";
 import { Icon, PickerView } from "antd-mobile";
 import CityName from "components/citySearch/index";
 import Css from "./found.module.scss"
-import { request,baseURL } from "utils/request";
+import { request } from "utils/request";
 import { connect } from "react-redux";
 import { List } from "react-virtualized";
-
-console.log(Css);
+import HouseItem from 'components/HouseItem/index'
 
 class Found extends Component {
 	constructor(props) {
@@ -21,11 +20,47 @@ class Found extends Component {
 			houseCount: 0,
 		};
 	}
+	params = {
+		cityId: "",
+		start: 1,
+		end: 20,
+	};
+	isLoading = false;
 	componentDidMount() {
-		this.getCityId().then((res) => {
+		this.getCityId().then(async (res) => {
 			// console.log(res);
-			this.getAreaCity(res);
-			this.getHouseList(res);
+			let filterlist = [];
+			const condition = (await request.get(`/houses/condition?id=${res}`)).data
+				.body;
+			// console.log(condition);
+			const {
+				area, //区域
+				subway, //地铁
+				characteristic, //房屋亮点
+				floor, //楼层
+				rentType, //方式
+				oriented, //朝向
+				price, //价格
+				roomType, //户型
+			} = condition;
+			filterlist.push([area, subway]);
+			filterlist.push(rentType);
+			filterlist.push(price);
+			filterlist.push([
+				{ label: "户型", children: roomType },
+				{ label: "房屋亮点", children: characteristic },
+				{ label: "楼层", children: floor },
+				{ label: "朝向", children: oriented },
+			]);
+			this.params.cityId = res;
+			const { list, count } = (
+				await request.get("/houses?cityId=" + res)
+			).data.body;
+			this.setState({
+				filterlist,
+				houseList: list,
+				houseCount: count,
+			});
 		});
 	}
 	async getCityId() {
@@ -34,41 +69,13 @@ class Found extends Component {
 		// console.log(cityId);
 		return cityId;
 	}
-	async getAreaCity(id) {
-		let filterlist = [];
-		const condition = (await request.get(`/houses/condition?id=${id}`)).data
-			.body;
-		// console.log(condition);
-		const {
-			area, //区域
-			subway, //地铁
-			characteristic, //房屋亮点
-			floor, //楼层
-			rentType, //方式
-			oriented, //朝向
-			price, //价格
-			roomType, //户型
-		} = condition;
-		filterlist.push([area, subway]);
-		filterlist.push(rentType);
-		filterlist.push(price);
-		filterlist.push([
-			{ label: "户型", children: roomType },
-			{ label: "房屋亮点", children: characteristic },
-			{ label: "楼层", children: floor },
-			{ label: "朝向", children: oriented },
-		]);
-		this.setState({
-			filterlist,
-		});
-	}
-	async getHouseList(id) {
+	async getHouseList() {
 		const { list, count } = (
-			await request.get("/houses?cityId=" + id)
+			await request.get("/houses", { params: this.params })
 		).data.body;
-		// console.log(res);
+		this.isLoading=false
 		this.setState({
-			houseList: list,
+			houseList: [...this.state.houseList,...list],
 			houseCount: count,
 		});
 	}
@@ -100,14 +107,13 @@ class Found extends Component {
 			selectFilter,
 		});
 	}
-
 	//确定选择
-	handleSubmit = () => {
+	handleSubmit = async () => {
 		const { selectFilter } = this.state;
 		const areaOrSubway = selectFilter[0][0],
 			rentType = selectFilter[1][0],
-			price = selectFilter[2][0],
-			more = selectFilter[3].join(',');
+			price = selectFilter[2][0].split('|')[1],
+			more = selectFilter[3].join(",");
 		//判断区域属性值
 		let areaOrSubway_val = ["null", undefined].includes(selectFilter[0][2])
 			? selectFilter[0][1]
@@ -121,14 +127,32 @@ class Found extends Component {
 		};
 		//过滤不合理的属性
 		for (const key in obj) {
-			if (["null","",undefined].includes(obj[key])) {
-				delete obj[key]
+			if (["null", "", undefined].includes(obj[key])) {
+				delete obj[key];
 			}
 		}
-		console.log(obj);
-		
-
-	};
+		// console.log(obj);
+		this.params = Object.assign(this.params, obj);
+		this.setState({
+			houseList: [],
+			activeIndex: null,
+		});
+		this.params.start = 1;
+		this.params.end = 20;
+		this.getHouseList()
+	}
+	onScroll = ({ clientHeight, scrollHeight, scrollTop }) => {
+		const isList = this.state.houseList.length === 0,
+			isScroll = scrollHeight - clientHeight - scrollTop < 15,
+			hasMore = this.params.start < this.state.houseCount;
+		if (isList || !isScroll || !hasMore || this.isLoading) { 
+			return;
+		}
+		this.isLoading = true;
+		this.params.start += 20;
+		this.params.end += 20;
+		this.getHouseList()
+	}
 	//picker结构
 	renderActivePicker() {
 		const { filterlist, activeIndex, selectFilter } = this.state;
@@ -207,26 +231,7 @@ class Found extends Component {
 	//list-item结构
 	rowRenderer = ({ key, index, isScrolling, isVisible, style }) => {
 		const { houseList } = this.state;
-		return houseList.map((v) => (
-			<div key={v.houseCode} className={Css.item_content}>
-				<div className={Css.list_img}>
-					<img src={baseURL + v.houseImg} />
-				</div>
-				<div className={Css.item_house}>
-					<div className={Css.house_name}>{v.title}</div>
-					<div className={Css.house_desc}>{v.desc}</div>
-					{v.tags.map((tag) => (
-						<span key={tag} className={Css.tags}>
-							{tag}
-						</span>
-					))}
-					<div className={Css.price}>
-						<span>{v.price}</span>
-						元/月
-					</div>
-				</div>
-			</div>
-		));
+		return houseList.map((v) => <HouseItem HouseItem={v} key={v.houseCode} />);
 	};
 	render() {
 		const { areaTitle, activeIndex, houseList } = this.state;
@@ -267,14 +272,16 @@ class Found extends Component {
 					<div className={Css.mask} onClick={this.hideMask}></div>
 				)}
 				{/* <div>asdasdasda</div> */}
-				<List
-					className={Css.house_list}
-					width={window.screen.width}
-					height={window.screen.height - 90}
-					rowCount={houseList.length}
-					rowHeight={90}
-					rowRenderer={this.rowRenderer}
-				/>
+				<div className={Css.house_list}>
+					<List
+						width={window.screen.width}
+						height={window.screen.height - 140}
+						rowCount={houseList.length}
+						rowHeight={101}
+						onScroll={this.onScroll}
+						rowRenderer={this.rowRenderer}
+					/>
+				</div>
 			</div>
 		);
 	}

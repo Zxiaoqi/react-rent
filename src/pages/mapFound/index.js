@@ -2,7 +2,8 @@ import React, { Component, Fragment } from "react";
 import { NavBar, Icon } from "antd-mobile";
 import Css from "./mapFound.module.scss"
 import {connect } from 'react-redux'
-import { request, baseURL } from "utils/request";
+import { request } from "utils/request";
+import HouseItem from 'components/HouseItem/index'
 
 const BMap = window.BMap;
 let map = null;
@@ -109,37 +110,17 @@ class MapFound extends Component {
 				</NavBar>
 				<div className={Css.map_allmap}>
 					<div id="allmap" className={Css.allmap}></div>
-						<div
-							className={Css.house_list}
-							style={{ height: showDetail + "px" }}
-						>
-							<div className={Css.house_title}>
-								<h3>房屋列表</h3>
-								<span>更多房源</span>
-							</div>
-							<div className={Css.list_content}>
-								{houseList.map((v) => (
-									<div key={v.houseCode} className={Css.item_content}>
-										<div className={Css.list_img}>
-											<img src={baseURL + v.houseImg} />
-										</div>
-										<div className={Css.item_house}>
-											<div className={Css.house_name}>{v.title}</div>
-											<div className={Css.house_desc}>{v.desc}</div>
-											{v.tags.map((tag) => (
-												<span key={tag} className={Css.tags}>
-													{tag}
-												</span>
-											))}
-											<div className={Css.price}>
-												<span>{v.price}</span>
-												元/月
-											</div>
-										</div>
-									</div>
-								))}
-							</div>
+					<div className={Css.house_list} style={{ height: showDetail + "px" }}>
+						<div className={Css.house_title}>
+							<h3>房屋列表</h3>
+							<span>更多房源</span>
 						</div>
+						<div className={Css.list_content}>
+							{houseList.map((v) => (
+								<HouseItem HouseItem={v} key={v.houseCode} />
+							))}
+						</div>
+					</div>
 				</div>
 			</Fragment>
 		);

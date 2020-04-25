@@ -121,7 +121,8 @@ class Tabbar extends Component {
 								<img
 									className="groups-item-right"
 									src={baseURL + item.imgSrc}
-								></img>
+									alt=""
+								/>
 							</div>
 						))}
 					</div>

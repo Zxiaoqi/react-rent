@@ -1,4 +1,4 @@
-import { INITCITY, CITY_UPDATE } from "../actionType/index";
+import { INITCITY, CITY_UPDATE, CITY_CLEAR } from "../actionType/index";
 import {getLocaCity,geocoderCity } from "utils/baiduMap"
 
 export const actionLocaCity = () => {
@@ -32,3 +32,10 @@ export const actionUpdateCity = (cityName) => {
 		});
 	};
 };
+
+export const actionClearCity = () => { 
+	return {
+		type: CITY_CLEAR,
+		value: {}
+	}
+}

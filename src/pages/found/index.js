@@ -27,6 +27,8 @@ class Found extends Component {
 	};
 	isLoading = false;
 	componentDidMount() {
+		// console.log(this.props.cityName);
+		
 		this.getCityId().then(async (res) => {
 			// console.log(res);
 			let filterlist = [];
@@ -141,6 +143,7 @@ class Found extends Component {
 		this.params.end = 20;
 		this.getHouseList()
 	}
+	//滚动
 	onScroll = ({ clientHeight, scrollHeight, scrollTop }) => {
 		const isList = this.state.houseList.length === 0,
 			isScroll = scrollHeight - clientHeight - scrollTop < 15,
@@ -156,7 +159,7 @@ class Found extends Component {
 	//picker结构
 	renderActivePicker() {
 		const { filterlist, activeIndex, selectFilter } = this.state;
-		if (filterlist.length == 0) {
+		if (filterlist.length === 0) {
 			return null;
 		} else if (activeIndex >= 0 && activeIndex <= 2) {
 			return (
@@ -165,7 +168,7 @@ class Found extends Component {
 						onChange={this.onChange}
 						value={selectFilter[activeIndex]}
 						data={filterlist[activeIndex]}
-						cascade={activeIndex == 0 ? true : false}
+						cascade={activeIndex === 0 ? true : false}
 					/>
 					<div className={Css.picker_select}>
 						<div className={Css.cancel} onClick={this.hideMask}>
@@ -245,7 +248,7 @@ class Found extends Component {
 				</div>
 				<div
 					className={Css.area_filters}
-					style={{ zIndex: activeIndex == 3 ? "auto" : 999 }}
+					style={{ zIndex: activeIndex === 3 ? "auto" : 999 }}
 				>
 					<div className={Css.filter_picker}>
 						{areaTitle.map((v, i) => (
@@ -288,7 +291,7 @@ class Found extends Component {
 }
 
 const mapStateToProps = (state) => ({
-	cityName: state.mapReducer.cityName,
+	cityName: state.mapReducer.cityName.name,
 });
 
 export default connect(mapStateToProps)(Found);

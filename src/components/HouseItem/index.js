@@ -7,7 +7,7 @@ class HouseItem extends Component {
         return (
 					<div className={Css.item_content}>
 						<div className={Css.list_img}>
-							<img src={baseURL + item.houseImg} />
+							<img src={baseURL + item.houseImg} alt=""/>
 						</div>
 						<div className={Css.item_house}>
 							<div className={Css.house_name}>{item.title}</div>

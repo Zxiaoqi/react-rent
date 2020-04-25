@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { request } from 'utils/request'
 import "./index.scss"
 import { List } from "react-virtualized";
-import { actionUpdateCity } from "store/actionCreator";
+import { actionUpdateCity, actionClearCity } from "store/actionCreator";
 
 class CitySelect extends Component {
 	constructor(props) {
@@ -42,12 +42,12 @@ class CitySelect extends Component {
 		let cityArr = [],
 			cityitem = {};
 		//遍历
-		zh.map((item, n) => {
+		zh.forEach((item, n) => {
 			cityitem = {
 				title: item.toLocaleUpperCase(),
 				children: [],
 			};
-			cityData.map((v, i) => {
+			cityData.forEach((v, i) => {
 				if (!zh[n] || new RegExp("^" + zh[n]).test(v.short)) {
 					cityitem.children.push(v);
 				}
@@ -85,6 +85,7 @@ class CitySelect extends Component {
 	//city点击事件
 	handleCityName(cityName) {
 		// console.log(cityName);
+		this.props.actionClearCity()
 		this.props.actionUpdateCity(cityName);
 		this.props.history.goBack()
 	 }
@@ -160,6 +161,9 @@ const mapActionToProps = (dispatch) => {
 	return {
 		actionUpdateCity(cityName) { 
 			dispatch(actionUpdateCity(cityName));
+		},
+		actionClearCity() { 
+			dispatch(actionClearCity())
 		}
 	};
 }
